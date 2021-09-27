@@ -2,7 +2,7 @@
 using CoreApiBoard.Dto;
 using CoreApiBoard.Interfaces.IRepositorys;
 using CoreApiBoard.Interfaces.IServices;
-using CoreApiBoard.Models;
+using CoreApiBoard.PostgreSQLModels;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using CoreApiBoard.Interfaces.IRepositorys;
 using CoreApiBoard.Interfaces.IServices;
 using CoreApiBoard.JWT;
-using CoreApiBoard.Models;
+using CoreApiBoard.PostgreSQLModels;
 using CoreApiBoard.Repositorys;
 using CoreApiBoard.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -41,40 +41,41 @@ namespace CoreApiBoard
                 // CorsPolicy 是自訂的 Policy 名稱
                 options.AddPolicy("CorsPolicy", policy =>
                 {
-                    policy.WithOrigins("http://localhost:3000")
+                    policy.WithOrigins("https://littlewhalereactboard.herokuapp.com/")
                           .AllowAnyHeader()
                           .AllowAnyMethod()
                           .AllowCredentials();
                 });
             });
 
-            //更新資料表
+            //mssql更新資料表
             //Scaffold-DbContext "Server=LAPTOP-8OLRP162;Database=Board;Trusted_Connection=True;User ID=sa;Password=1qaz@WSX" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Force
+            //services.AddDbContext<BoardContext>(options => options.UseSqlServer(Configuration.GetConnectionString("MssqlConnectionString")));
 
-            services.AddDbContext<BoardContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DevConnectionString")));
+
+            //PostgreSQL更新資料表
+            //Scaffold-DbContext "Host=localhost;Database=Board;Username=postgres;Password=1qaz@WSX" Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir PostgreSQLModels -Force
+#if DEBUG
+            services.AddDbContext<BoardContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreConnectionString")));
+#else
+            services.AddDbContext<BoardContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreOnlineConnectionString")));
+#endif
+
+
 
 
             services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                // 當驗證失敗時，回應標頭會包含 WWW-Authenticate 標頭，這裡會顯示失敗的詳細錯誤原因
-                options.IncludeErrorDetails = true; // 預設值為 true，有時會特別關閉
+                options.IncludeErrorDetails = true;
 
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    // 一般我們都會驗證 Issuer
                     ValidateIssuer = true,
                     ValidIssuer = Configuration.GetValue<string>("JwtSettings:Issuer"),
-
-                    // 通常不太需要驗證 Audience
                     ValidateAudience = false,
-                    //ValidAudience = "JwtAuthDemo", // 不驗證就不需要填寫
-
-                    // 一般我們都會驗證 Token 的有效期間
                     ValidateLifetime = true,
-
-                    // 如果 Token 中包含 key 才需要驗證，一般都只有簽章而已
                     ValidateIssuerSigningKey = false,
                     ClockSkew = TimeSpan.Zero,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetValue<string>("JwtSettings:SignKey")))

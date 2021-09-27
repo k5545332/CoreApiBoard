@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using CoreApiBoard.Dto;
-using CoreApiBoard.Models;
+using CoreApiBoard.PostgreSQLModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
