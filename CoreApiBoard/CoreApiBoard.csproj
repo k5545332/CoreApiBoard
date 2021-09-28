@@ -6,6 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\**" />
+    <Content Remove="Models\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <None Remove="Models\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="Interfaces\IRepositorys\IRepository.cs" />
     <Compile Remove="Repositorys\Repository.cs" />
   </ItemGroup>
@@ -24,7 +31,7 @@
   </ItemGroup>
 
 	<Target Name="PrePublishTarget" AfterTargets="Publish">
-		<Exec Command="dotnet ef database update" />
+		<Exec Command="dotnet ef database update -c BoardContext" />
 	</Target>
 
 	<ProjectExtensions><VisualStudio><UserProperties properties_4launchsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
