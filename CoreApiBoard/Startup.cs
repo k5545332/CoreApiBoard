@@ -38,19 +38,27 @@ namespace CoreApiBoard
         {
             services.AddCors(options =>
             {
-                // CorsPolicy 是自訂的 Policy 名稱
                 options.AddPolicy("CorsPolicy", policy =>
                 {
-                    policy.WithOrigins("https://littlewhalereactboard.herokuapp.com/")
+                    policy.WithOrigins("https://littlewhalereactboard.herokuapp.com")
                           .AllowAnyHeader()
                           .AllowAnyMethod()
                           .AllowCredentials();
                 });
             });
 
-          
+            //mssql更新資料表
+            //Scaffold-DbContext "Server=LAPTOP-8OLRP162;Database=Board;Trusted_Connection=True;User ID=sa;Password=1qaz@WSX" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Force
+            //services.AddDbContext<BoardContext>(options => options.UseSqlServer(Configuration.GetConnectionString("MssqlConnectionString")));
 
-            services.AddDbContext<BoardContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreOnlineConnectionString")));
+
+            //PostgreSQL更新資料表
+            //Scaffold-DbContext "Host=localhost;Database=Board;Username=postgres;Password=1qaz@WSX" Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir PostgreSQLModels -Force
+            services.AddDbContext<BoardContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreConnectionString")));
+
+
+
+            //services.AddDbContext<BoardContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreOnlineConnectionString")));
 
 
 
