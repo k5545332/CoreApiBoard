@@ -34,7 +34,7 @@ namespace CoreApiBoard
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services, IWebHostEnvironment env)
+        public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors(options =>
             {
@@ -48,23 +48,10 @@ namespace CoreApiBoard
                 });
             });
 
-            if (env.IsDevelopment())
-            {
-                //mssql更新資料表
-                //Scaffold-DbContext "Server=LAPTOP-8OLRP162;Database=Board;Trusted_Connection=True;User ID=sa;Password=1qaz@WSX" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Force
-                //services.AddDbContext<BoardContext>(options => options.UseSqlServer(Configuration.GetConnectionString("MssqlConnectionString")));
+          
 
+            services.AddDbContext<BoardContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreOnlineConnectionString")));
 
-                //PostgreSQL更新資料表
-                //Scaffold-DbContext "Host=localhost;Database=Board;Username=postgres;Password=1qaz@WSX" Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir PostgreSQLModels -Force
-                services.AddDbContext<BoardContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreConnectionString")));
-
-            }
-            else
-            {
-                services.AddDbContext<BoardContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreOnlineConnectionString")));
-
-            }
 
 
             services
