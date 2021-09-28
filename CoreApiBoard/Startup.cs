@@ -55,17 +55,15 @@ namespace CoreApiBoard
 
             //PostgreSQL更新資料表
             //Scaffold-DbContext "Host=localhost;Database=Board;Username=postgres;Password=1qaz@WSX" Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir PostgreSQLModels -Force
-#if DEBUG
-            services.AddDbContext<BoardContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreConnectionString")));
-#else
-            services.AddDbContext<BoardContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreOnlineConnectionString")));
-#endif
+            //services.AddDbContext<BoardContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreConnectionString")));
 
+
+            services.AddDbContext<BoardContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreOnlineConnectionString")));
 
 
 
             services
-            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
                 options.IncludeErrorDetails = true;
