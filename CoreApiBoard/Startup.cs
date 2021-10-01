@@ -73,14 +73,14 @@ namespace CoreApiBoard
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
-                    ValidIssuer = Environment.GetEnvironmentVariable("Issuer "),
-                    //ValidIssuer = Configuration.GetValue<string>("JwtSettings:Issuer"),
+                    //ValidIssuer = Environment.GetEnvironmentVariable("Issuer "),
+                    ValidIssuer = Configuration.GetValue<string>("JwtSettings:Issuer"),
                     ValidateAudience = false,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = false,
                     ClockSkew = TimeSpan.Zero,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SignKey ")))
-                    //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetValue<string>("JwtSettings:SignKey")))
+                    //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SignKey ")))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetValue<string>("JwtSettings:SignKey")))
                 };
             });
 
