@@ -7,10 +7,20 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2.Flows;
+using Google.Apis.Auth.OAuth2.Responses;
+using Google.Apis.Drive.v3;
+using Google.Apis.Services;
+using Google.Apis.Util.Store;
+using static Google.Apis.Drive.v3.DriveService;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Configuration;
 
 namespace CoreApiBoard.Services
 {
@@ -20,6 +30,7 @@ namespace CoreApiBoard.Services
         private readonly IThemeRepository _themeRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
+
         public EventService(IEventRepository eventRepository, IThemeRepository themeRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _eventRepository = eventRepository;
@@ -141,6 +152,149 @@ namespace CoreApiBoard.Services
             var Result = _eventRepository.Update(EventDto);
 
             return Result;
+        }
+
+        public string ImageUpload(IFormFileCollection files)
+        {
+            var FormFile = files[0];
+            var UploadFileName = FormFile.FileName;
+            var FileName = Guid.NewGuid() + Path.GetExtension(UploadFileName);
+            //var SaveDir = @".\upload\";
+            //var SavePath = SaveDir + FileName;
+            //var PreviewPath = $"https://localhost:5001/event/image?name={FileName}";
+            var PreviewPath = $"https://drive.google.com/uc?export=view&id=";
+            bool Result = true;
+            var StreamFile = new FileStream(FileName, FileMode.Create);
+            FormFile.CopyTo(StreamFile);
+
+            try
+            {
+
+                //本地測試
+                //if (!Directory.Exists(SaveDir))
+                //{
+                //    Directory.CreateDirectory(SaveDir);
+                //}
+                //using (FileStream Fs = System.IO.File.Create(SavePath))
+                //{
+                //    FormFile.CopyTo(Fs);
+                //    Fs.Flush();
+                //}
+                var NewFileId = UploadFile(StreamFile, FileName, FormFile.FileName);
+                PreviewPath += $"{NewFileId}";
+            }
+            catch (Exception ex)
+            {
+                Result = false;
+            }
+
+            var rUpload = new
+            {
+                uploaded = Result,
+                url = Result ? PreviewPath : string.Empty
+            };
+            return JsonConvert.SerializeObject(rUpload);
+        }
+
+
+        /// <summary>
+        /// 連線google
+        /// </summary>
+        /// <returns></returns>
+        private static DriveService GetService()
+        {
+            var builder = new ConfigurationBuilder();
+            builder.AddJsonFile("appSettings.json");
+            var config = builder.Build();
+            
+            var tokenResponse = new TokenResponse
+            {
+                AccessToken = Environment.GetEnvironmentVariable("AccessToken "),
+                RefreshToken = Environment.GetEnvironmentVariable("RefreshToken "),
+                //AccessToken = config.GetValue<string>("GoogleDrive:AccessToken"),
+                //RefreshToken = config.GetValue<string>("GoogleDrive:RefreshToken"),
+            };
+
+
+            var applicationName = "littlewhaleboard"; // Use the name of the project in Google Cloud
+            var username = "littlewhaleboard@gmail.com"; // Use your email
+
+
+            var apiCodeFlow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
+            {
+                ClientSecrets = new ClientSecrets
+                {
+                    ClientId = Environment.GetEnvironmentVariable("ClientId "),
+                    ClientSecret = Environment.GetEnvironmentVariable("ClientSecret "),
+                    //ClientId = config.GetValue<string>("GoogleDrive:ClientId"),
+                    //ClientSecret = config.GetValue<string>("GoogleDrive:ClientSecret"),
+                },
+                Scopes = new[] { Scope.Drive },
+                DataStore = new FileDataStore(applicationName)
+            });
+
+
+            var credential = new UserCredential(apiCodeFlow, username, tokenResponse);
+
+
+            var service = new DriveService(new BaseClientService.Initializer
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = applicationName
+            });
+
+            return service;
+        }
+
+        /// <summary>
+        /// google drive創建文件夾
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="folderName"></param>
+        /// <returns></returns>
+        public string CreateFolder(string parent, string folderName)
+        {
+            var service = GetService();
+            var driveFolder = new Google.Apis.Drive.v3.Data.File();
+            driveFolder.Name = folderName;
+            driveFolder.MimeType = "application/vnd.google-apps.folder";
+            //driveFolder.Parents = new string[] { parent };
+            var command = service.Files.Create(driveFolder);
+            var file = command.Execute();
+            return file.Id;
+        }
+
+
+        /// <summary>
+        /// google上傳檔案
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="fileName"></param>
+        /// <param name="fileMime"></param>
+        /// <param name="folder"></param>
+        /// <param name="fileDescription"></param>
+        /// <returns></returns>
+        public string UploadFile(Stream file, string fileName, string fileDescription)
+        {
+            DriveService service = GetService();
+
+            string fileMime;
+            new FileExtensionContentTypeProvider().TryGetContentType(fileName, out fileMime);
+            var driveFile = new Google.Apis.Drive.v3.Data.File();
+            driveFile.Name = fileName;
+            driveFile.Description = fileDescription;
+            driveFile.MimeType = fileMime;
+            driveFile.Parents = new List<string> { "1zzcGaiZMDDJmpFxEzvE-3s6c9uBM6OMC" };
+
+
+            var request = service.Files.Create(driveFile, file, fileMime);
+            request.Fields = "id";
+
+            var response = request.Upload();
+            if (response.Status != Google.Apis.Upload.UploadStatus.Completed)
+                throw response.Exception;
+
+            return request.ResponseBody.Id;
         }
     }
 }

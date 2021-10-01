@@ -40,6 +40,7 @@ namespace CoreApiBoard
             {
                 options.AddPolicy("CorsPolicy", policy =>
                 {
+                    //policy.WithOrigins("https://littlewhalereactboard.herokuapp.com", "http://localhost:3000")
                     policy.WithOrigins("https://littlewhalereactboard.herokuapp.com")
                           .AllowAnyHeader()
                           .AllowAnyMethod()
@@ -58,7 +59,8 @@ namespace CoreApiBoard
 
 
 
-            services.AddDbContext<BoardContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreOnlineConnectionString")));
+            services.AddDbContext<BoardContext>(options => options.UseNpgsql(Environment.GetEnvironmentVariable("PostgreOnlineConnectionString ")));
+            //services.AddDbContext<BoardContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreOnlineConnectionString")));
 
 
 
@@ -71,12 +73,14 @@ namespace CoreApiBoard
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
-                    ValidIssuer = Configuration.GetValue<string>("JwtSettings:Issuer"),
+                    ValidIssuer = Environment.GetEnvironmentVariable("Issuer "),
+                    //ValidIssuer = Configuration.GetValue<string>("JwtSettings:Issuer"),
                     ValidateAudience = false,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = false,
                     ClockSkew = TimeSpan.Zero,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetValue<string>("JwtSettings:SignKey")))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SignKey ")))
+                    //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetValue<string>("JwtSettings:SignKey")))
                 };
             });
 

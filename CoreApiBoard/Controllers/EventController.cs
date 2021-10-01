@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CoreApiBoard.Dto;
@@ -7,6 +8,7 @@ using CoreApiBoard.Interfaces.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace CoreApiBoard.Controllers
 {
@@ -139,5 +141,33 @@ namespace CoreApiBoard.Controllers
                 throw ex;
             }
         }
+        
+        [Authorize(Roles = "1,2")]
+        [HttpPost("add/image")]
+        public string ImageUpload()
+        {
+            try
+            {
+                var files = Request.Form.Files;
+                if (files.Count != 0)
+                {
+                    return _eventService.ImageUpload(files);
+                }
+                return "fail";
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        [HttpGet("image")]
+        public IActionResult ImageGet([FromQuery] string name)
+        {
+            Byte[] b = System.IO.File.ReadAllBytes($@"D:\code\ReactCoreApiBoard\CoreApiBoard\CoreApiBoard\CoreApiBoard\upload\{name}");   
+            return File(b, "image/jpeg");
+        }
+
     }
 }

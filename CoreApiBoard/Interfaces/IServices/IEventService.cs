@@ -1,4 +1,5 @@
 ﻿using CoreApiBoard.Dto;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,7 @@ namespace CoreApiBoard.Interfaces.IServices
         public string UpdateEventGetData(int id);
         public string DeleteEventData(int id);
         public string AddDataView(int id);
+        public string ImageUpload(IFormFileCollection files);
+        
     }
 }
