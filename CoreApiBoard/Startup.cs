@@ -59,8 +59,8 @@ namespace CoreApiBoard
 
 
 
-            services.AddDbContext<BoardContext>(options => options.UseNpgsql(Environment.GetEnvironmentVariable("PostgreOnlineConnectionString ")));
-            //services.AddDbContext<BoardContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreOnlineConnectionString")));
+            //services.AddDbContext<BoardContext>(options => options.UseNpgsql(Environment.GetEnvironmentVariable("PostgreOnlineConnectionString ")));
+            services.AddDbContext<BoardContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreOnlineConnectionString")));
 
 
 
