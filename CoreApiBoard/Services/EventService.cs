@@ -21,6 +21,8 @@ using Google.Apis.Util.Store;
 using static Google.Apis.Drive.v3.DriveService;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
+using System.Text;
+using Microsoft.AspNetCore.Hosting;
 
 namespace CoreApiBoard.Services
 {
@@ -30,13 +32,15 @@ namespace CoreApiBoard.Services
         private readonly IThemeRepository _themeRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
+        private readonly IHostingEnvironment _hostingEnvironment;
 
-        public EventService(IEventRepository eventRepository, IThemeRepository themeRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public EventService(IEventRepository eventRepository, IThemeRepository themeRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor, IHostingEnvironment hostingEnvironment)
         {
             _eventRepository = eventRepository;
             _themeRepository = themeRepository;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
+            _hostingEnvironment = hostingEnvironment;
         }
         public string IndexGetData()
         {
@@ -154,7 +158,7 @@ namespace CoreApiBoard.Services
             return Result;
         }
 
-        public string ImageUpload(IFormFileCollection files)
+        public async Task<string> ImageUpload(IFormFileCollection files)
         {
             var FormFile = files[0];
             var UploadFileName = FormFile.FileName;
@@ -164,38 +168,67 @@ namespace CoreApiBoard.Services
             //var PreviewPath = $"https://localhost:5001/event/image?name={FileName}";
             var PreviewPath = $"https://drive.google.com/uc?export=view&id=";
             bool Result = true;
-            var StreamFile = new FileStream(FileName, FileMode.Create);
-            FormFile.CopyTo(StreamFile);
-
-            try
-            {
-
-                //本地測試
-                //if (!Directory.Exists(SaveDir))
-                //{
-                //    Directory.CreateDirectory(SaveDir);
-                //}
-                //using (FileStream Fs = System.IO.File.Create(SavePath))
-                //{
-                //    FormFile.CopyTo(Fs);
-                //    Fs.Flush();
-                //}
-                var NewFileId = UploadFile(StreamFile, FileName, FormFile.FileName);
-                PreviewPath += $"{NewFileId}";
-            }
-            catch (Exception ex)
-            {
-                Result = false;
-            }
-
             var rUpload = new
             {
                 uploaded = Result,
-                url = Result ? PreviewPath : string.Empty
+                url = string.Empty
             };
+
+            using (var StreamFile = new FileStream(FileName, FileMode.Create))
+            {
+                FormFile.CopyTo(StreamFile);
+
+                try
+                {
+
+                    //本地測試
+                    //if (!Directory.Exists(SaveDir))
+                    //{
+                    //    Directory.CreateDirectory(SaveDir);
+                    //}
+                    //using (FileStream Fs = System.IO.File.Create(SavePath))
+                    //{
+                    //    FormFile.CopyTo(Fs);
+                    //    Fs.Flush();
+                    //}
+
+                    var NewFileId = await UploadFile(StreamFile, FileName, FormFile.FileName);
+                    PreviewPath += $"{NewFileId}";
+                }
+                catch (Exception ex)
+                {
+                    Result = false;
+                }
+
+                rUpload = new
+                {
+                    uploaded = Result,
+                    url = Result ? PreviewPath : string.Empty
+                };
+            }
+            
+           
+
+
+            try
+            {
+                var localpath = ($@"{_hostingEnvironment.ContentRootPath}\{FileName}").Replace(@"\\", @"\");
+                File.Delete(localpath);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+           
+
             return JsonConvert.SerializeObject(rUpload);
         }
 
+        public static MemoryStream GenerateStreamFromString(string value)
+        {
+            return new MemoryStream(Encoding.UTF8.GetBytes(value ?? ""));
+        }
 
         /// <summary>
         /// 連線google
@@ -274,7 +307,7 @@ namespace CoreApiBoard.Services
         /// <param name="folder"></param>
         /// <param name="fileDescription"></param>
         /// <returns></returns>
-        public string UploadFile(Stream file, string fileName, string fileDescription)
+        public async Task<string> UploadFile(Stream file, string fileName, string fileDescription)
         {
             DriveService service = GetService();
 
@@ -290,7 +323,7 @@ namespace CoreApiBoard.Services
             var request = service.Files.Create(driveFile, file, fileMime);
             request.Fields = "id";
 
-            var response = request.Upload();
+            var response = await request.UploadAsync();
             if (response.Status != Google.Apis.Upload.UploadStatus.Completed)
                 throw response.Exception;
 

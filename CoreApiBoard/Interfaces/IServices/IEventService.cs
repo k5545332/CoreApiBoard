@@ -17,7 +17,7 @@ namespace CoreApiBoard.Interfaces.IServices
         public string UpdateEventGetData(int id);
         public string DeleteEventData(int id);
         public string AddDataView(int id);
-        public string ImageUpload(IFormFileCollection files);
+        public Task<string> ImageUpload(IFormFileCollection files);
         
     }
 }

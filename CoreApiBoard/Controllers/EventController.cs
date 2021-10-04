@@ -144,7 +144,7 @@ namespace CoreApiBoard.Controllers
         
         [Authorize(Roles = "1,2")]
         [HttpPost("add/image")]
-        public string ImageUpload()
+        public Task<string> ImageUpload()
         {
             try
             {
@@ -153,7 +153,7 @@ namespace CoreApiBoard.Controllers
                 {
                     return _eventService.ImageUpload(files);
                 }
-                return "fail";
+                return Task.FromException<string>(new Exception("fail."));
             }
             catch (Exception ex)
             {
@@ -162,12 +162,12 @@ namespace CoreApiBoard.Controllers
             }
         }
 
-        [HttpGet("image")]
-        public IActionResult ImageGet([FromQuery] string name)
-        {
-            Byte[] b = System.IO.File.ReadAllBytes($@"D:\code\ReactCoreApiBoard\CoreApiBoard\CoreApiBoard\CoreApiBoard\upload\{name}");   
-            return File(b, "image/jpeg");
-        }
+        //[HttpGet("image")]
+        //public IActionResult ImageGet([FromQuery] string name)
+        //{
+        //    Byte[] b = System.IO.File.ReadAllBytes($@"D:\code\ReactCoreApiBoard\CoreApiBoard\CoreApiBoard\CoreApiBoard\upload\{name}");   
+        //    return File(b, "image/jpeg");
+        //}
 
     }
 }
