@@ -210,16 +210,16 @@ namespace CoreApiBoard.Services
            
 
 
-            try
-            {
-                var localpath = ($@"{FileName}").Replace(@"\\", @"\");
-                File.Delete(localpath);
-            }
-            catch (Exception ex)
-            {
+            //try
+            //{
+            //    var localpath = ($@"{FileName}").Replace(@"\\", @"\");
+            //    File.Delete(localpath);
+            //}
+            //catch (Exception ex)
+            //{
 
-                throw ex;
-            }
+            //    throw ex;
+            //}
            
 
             return JsonConvert.SerializeObject(rUpload);
