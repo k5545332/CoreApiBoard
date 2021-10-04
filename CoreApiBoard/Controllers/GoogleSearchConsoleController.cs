@@ -21,7 +21,7 @@ namespace CoreApiBoard.Controllers
         [HttpGet()]
         public IActionResult Get()
         {
-            Byte[] b = System.IO.File.ReadAllBytes($@"{_hostingEnvironment.ContentRootPath}\googlec40442aeb226f494.html");
+            Byte[] b = System.IO.File.ReadAllBytes($@"googlec40442aeb226f494.html");
             return File(b, "text/html");
         }
     }

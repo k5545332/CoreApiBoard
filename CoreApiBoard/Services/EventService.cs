@@ -212,7 +212,7 @@ namespace CoreApiBoard.Services
 
             try
             {
-                var localpath = ($@"{_hostingEnvironment.ContentRootPath}\{FileName}").Replace(@"\\", @"\");
+                var localpath = ($@"{FileName}").Replace(@"\\", @"\");
                 File.Delete(localpath);
             }
             catch (Exception ex)
