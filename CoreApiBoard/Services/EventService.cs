@@ -32,15 +32,23 @@ namespace CoreApiBoard.Services
         private readonly IThemeRepository _themeRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
-        private readonly IHostingEnvironment _hostingEnvironment;
+        private IConfiguration _configuration { get; }
+        private static string AccessToken { get; set; }
+        private static string RefreshToken { get; set; }
+        private static string ClientId { get; set; }
+        private static string ClientSecret { get; set; }
 
-        public EventService(IEventRepository eventRepository, IThemeRepository themeRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor, IHostingEnvironment hostingEnvironment)
+        public EventService(IEventRepository eventRepository, IThemeRepository themeRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
         {
             _eventRepository = eventRepository;
             _themeRepository = themeRepository;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
-            _hostingEnvironment = hostingEnvironment;
+            _configuration = configuration;
+            AccessToken = _configuration.GetValue<string>("GoogleDrive:AccessToken");
+            RefreshToken = _configuration.GetValue<string>("GoogleDrive:RefreshToken");
+            ClientId = _configuration.GetValue<string>("GoogleDrive:ClientId");
+            ClientSecret = _configuration.GetValue<string>("GoogleDrive:ClientSecret");
         }
         public string IndexGetData()
         {
@@ -237,17 +245,12 @@ namespace CoreApiBoard.Services
         /// <returns></returns>
         private static DriveService GetService()
         {
-            var config = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appSettings.json")
-                    .Build();
-
             var tokenResponse = new TokenResponse
             {
                 //AccessToken = Environment.GetEnvironmentVariable("AccessToken "),
                 //RefreshToken = Environment.GetEnvironmentVariable("RefreshToken "),
-                AccessToken = config.GetValue<string>("GoogleDrive:AccessToken"),
-                RefreshToken = config.GetValue<string>("GoogleDrive:RefreshToken"),
+                AccessToken = AccessToken,
+                RefreshToken = RefreshToken,
             };
 
 
@@ -261,8 +264,8 @@ namespace CoreApiBoard.Services
                 {
                     //ClientId = Environment.GetEnvironmentVariable("ClientId "),
                     //ClientSecret = Environment.GetEnvironmentVariable("ClientSecret "),
-                    ClientId = config.GetValue<string>("GoogleDrive:ClientId"),
-                    ClientSecret = config.GetValue<string>("GoogleDrive:ClientSecret"),
+                    ClientId = ClientId,
+                    ClientSecret = ClientSecret,
                 },
                 Scopes = new[] { Scope.Drive },
                 DataStore = new FileDataStore(applicationName)
