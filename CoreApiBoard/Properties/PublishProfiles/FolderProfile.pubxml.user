@@ -6,5 +6,11 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
   <PropertyGroup>
     <_PublishTargetUrl>C:\inetpub\wwwroot\CoreApiBoard</_PublishTargetUrl>
     <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <History>True|2021-10-04T06:53:18.7309683Z;True|2021-10-04T14:38:29.5412556+08:00;True|2021-10-04T14:33:03.5858156+08:00;True|2021-10-04T14:14:46.8527745+08:00;False|2021-10-04T14:13:50.0038845+08:00;</History>
   </PropertyGroup>
+  <ItemGroup>
+    <File Include="googlec40442aeb226f494.html">
+      <publishTime>10/04/2021 09:25:45</publishTime>
+    </File>
+  </ItemGroup>
 </Project>
