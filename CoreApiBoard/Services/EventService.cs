@@ -237,10 +237,11 @@ namespace CoreApiBoard.Services
         /// <returns></returns>
         private static DriveService GetService()
         {
-            var builder = new ConfigurationBuilder();
-            builder.AddJsonFile("/app/heroku_output/appSettings.json");
-            var config = builder.Build();
-            
+            var config = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appSettings.json")
+                    .Build();
+
             var tokenResponse = new TokenResponse
             {
                 //AccessToken = Environment.GetEnvironmentVariable("AccessToken "),
