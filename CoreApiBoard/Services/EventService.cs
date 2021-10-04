@@ -173,7 +173,7 @@ namespace CoreApiBoard.Services
                 uploaded = Result,
                 url = string.Empty
             };
-
+            string errormessage = "";
             using (var StreamFile = new FileStream(FileName, FileMode.Create))
             {
                 FormFile.CopyTo(StreamFile);
@@ -198,12 +198,13 @@ namespace CoreApiBoard.Services
                 catch (Exception ex)
                 {
                     Result = false;
+                    errormessage = ex.ToString();
                 }
 
                 rUpload = new
                 {
                     uploaded = Result,
-                    url = Result ? PreviewPath : string.Empty
+                    url = Result ? PreviewPath : errormessage
                 };
             }
             
