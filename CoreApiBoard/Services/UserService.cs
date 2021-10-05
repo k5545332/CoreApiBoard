@@ -82,7 +82,7 @@ namespace CoreApiBoard.Services
             try
             {
                 var Data = _mapper.Map<UserDto>(data);
-                Data.UpdateTime = DateTime.Now;
+                Data.UpdateTime = DateTime.UtcNow.AddHours(08);
                 Data.Del = false;
 
                 return _userRepository.Create(Data);
@@ -132,7 +132,7 @@ namespace CoreApiBoard.Services
                 
             }
             var Data = _mapper.Map<UserDto>(data);
-            Data.UpdateTime = DateTime.Now;
+            Data.UpdateTime = DateTime.UtcNow.AddHours(08);
 
             return _userRepository.Update(Data);
         }
@@ -142,7 +142,7 @@ namespace CoreApiBoard.Services
             var Data = _userRepository.DeleteGet(id);
             if (Data != null)
             {
-                Data.UpdateTime = DateTime.Now;
+                Data.UpdateTime = DateTime.UtcNow.AddHours(08);
                 Data.Del = true;
                 return _userRepository.Delete(Data);
             }

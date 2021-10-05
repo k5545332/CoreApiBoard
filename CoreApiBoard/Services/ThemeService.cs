@@ -44,7 +44,7 @@ namespace CoreApiBoard.Services
                 var Claims = _httpContextAccessor.HttpContext.User.Claims;
 
                 var Data = _mapper.Map<ThemeDto>(data);
-                Data.UpdateTime = DateTime.Now;
+                Data.UpdateTime = DateTime.UtcNow.AddHours(08);
                 Data.Del = false;
                 Data.Userid = Int32.Parse(Claims.Where(x => x.Type == "Userid").First().Value.ToString());
 
@@ -71,7 +71,7 @@ namespace CoreApiBoard.Services
         {
             var Claims = _httpContextAccessor.HttpContext.User.Claims;
             var Data = _mapper.Map<ThemeDto>(data);
-            Data.UpdateTime = DateTime.Now;
+            Data.UpdateTime = DateTime.UtcNow.AddHours(08);
             Data.Userid = Int32.Parse(Claims.Where(x => x.Type == "Userid").First().Value.ToString());
 
             return _themeRepository.Update(Data);
@@ -83,7 +83,7 @@ namespace CoreApiBoard.Services
             var Data = _themeRepository.DeleteGet(id);
             if (Data != null)
             {
-                Data.UpdateTime = DateTime.Now;
+                Data.UpdateTime = DateTime.UtcNow.AddHours(08);
                 Data.Del = true;
                 Data.Userid = Int32.Parse(Claims.Where(x => x.Type == "Userid").First().Value.ToString());
                 return _themeRepository.Delete(Data);
