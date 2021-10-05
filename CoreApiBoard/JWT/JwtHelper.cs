@@ -45,7 +45,7 @@ namespace CoreApiBoard.JWT
                 //Issuer = Environment.GetEnvironmentVariable("Issuer "),
                 Issuer = Configuration.GetValue<string>("JwtSettings:Issuer"),
                 Subject = userClaimsIdentity,
-                Expires = DateTime.Now.AddMinutes(30),
+                Expires = DateTime.Now.AddMinutes(90),
                 SigningCredentials = signingCredentials
             };
 
