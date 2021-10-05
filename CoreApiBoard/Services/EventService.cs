@@ -209,27 +209,28 @@ namespace CoreApiBoard.Services
                     errormessage = ex.ToString();
                 }
 
-                rUpload = new
-                {
-                    uploaded = Result,
-                    url = Result ? PreviewPath : errormessage
-                };
+                
             }
-            
-           
 
 
-            //try
-            //{
-            //    var localpath = ($@"{FileName}").Replace(@"\\", @"\");
-            //    File.Delete(localpath);
-            //}
-            //catch (Exception ex)
-            //{
 
-            //    throw ex;
-            //}
-           
+
+            try
+            {
+                var localpath = ($@"{FileName}").Replace(@"\\", @"\");
+                File.Delete(localpath);
+            }
+            catch (Exception ex)
+            {
+                Result = false;
+                errormessage = ex.ToString();
+            }
+
+            rUpload = new
+            {
+                uploaded = Result,
+                url = Result ? PreviewPath : errormessage
+            };
 
             return JsonConvert.SerializeObject(rUpload);
         }
