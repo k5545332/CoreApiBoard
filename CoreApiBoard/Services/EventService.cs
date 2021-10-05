@@ -136,8 +136,11 @@ namespace CoreApiBoard.Services
         {
             var Claims = _httpContextAccessor.HttpContext.User.Claims;
             var Data = _mapper.Map<EventDto>(data);
+            var DataBaseData = _eventRepository.Get(Data.Eventid);
+
             Data.UpdateTime = DateTime.UtcNow.AddHours(08);
             Data.Userid = Int32.Parse(Claims.Where(x => x.Type == "Userid").First().Value.ToString());
+            Data.Views = DataBaseData.Views;
 
             return _eventRepository.Update(Data);
         }
