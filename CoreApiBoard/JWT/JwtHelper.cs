@@ -26,8 +26,8 @@ namespace CoreApiBoard.JWT
         {
             var UserInfo = _userRepository.Get(Account);
 
-            //string Secret = Environment.GetEnvironmentVariable("SignKey ");
-            string Secret = Configuration.GetValue<string>("JwtSettings:SignKey");
+            string Secret = Environment.GetEnvironmentVariable("SignKey");
+            //string Secret = Configuration.GetValue<string>("JwtSettings:SignKey");
 
             var userClaims = new ClaimsIdentity(new[] {
                 new Claim(JwtRegisteredClaimNames.Sub, Account),
@@ -42,8 +42,8 @@ namespace CoreApiBoard.JWT
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                //Issuer = Environment.GetEnvironmentVariable("Issuer "),
-                Issuer = Configuration.GetValue<string>("JwtSettings:Issuer"),
+                Issuer = Environment.GetEnvironmentVariable("Issuer"),
+                //Issuer = Configuration.GetValue<string>("JwtSettings:Issuer"),
                 Subject = userClaimsIdentity,
                 Expires = DateTime.Now.AddMinutes(90),
                 SigningCredentials = signingCredentials

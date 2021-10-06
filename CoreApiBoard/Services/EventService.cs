@@ -251,10 +251,10 @@ namespace CoreApiBoard.Services
         {
             var tokenResponse = new TokenResponse
             {
-                //AccessToken = Environment.GetEnvironmentVariable("AccessToken "),
-                //RefreshToken = Environment.GetEnvironmentVariable("RefreshToken "),
-                AccessToken = AccessToken,
-                RefreshToken = RefreshToken,
+                AccessToken = Environment.GetEnvironmentVariable("AccessToken"),
+                RefreshToken = Environment.GetEnvironmentVariable("RefreshToken"),
+                //AccessToken = AccessToken,
+                //RefreshToken = RefreshToken,
             };
 
 
@@ -266,10 +266,10 @@ namespace CoreApiBoard.Services
             {
                 ClientSecrets = new ClientSecrets
                 {
-                    //ClientId = Environment.GetEnvironmentVariable("ClientId "),
-                    //ClientSecret = Environment.GetEnvironmentVariable("ClientSecret "),
-                    ClientId = ClientId,
-                    ClientSecret = ClientSecret,
+                    ClientId = Environment.GetEnvironmentVariable("ClientId"),
+                    ClientSecret = Environment.GetEnvironmentVariable("ClientSecret"),
+                    //ClientId = ClientId,
+                    //ClientSecret = ClientSecret,
                 },
                 Scopes = new[] { Scope.Drive },
                 DataStore = new FileDataStore(applicationName)
