@@ -52,6 +52,7 @@ namespace CoreApiBoard.JWT
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Issuer = Issuer,
+                Subject = userClaimsIdentity,
                 Expires = DateTime.Now.AddMinutes(90),
                 SigningCredentials = signingCredentials
             };
