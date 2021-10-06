@@ -45,10 +45,22 @@ namespace CoreApiBoard.Services
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _configuration = configuration;
-            AccessToken = _configuration.GetValue<string>("GoogleDrive:AccessToken");
-            RefreshToken = _configuration.GetValue<string>("GoogleDrive:RefreshToken");
-            ClientId = _configuration.GetValue<string>("GoogleDrive:ClientId");
-            ClientSecret = _configuration.GetValue<string>("GoogleDrive:ClientSecret");
+
+            if (Environment.GetEnvironmentVariable("PostgreOnlineConnectionString") != null)
+            {
+                AccessToken = Environment.GetEnvironmentVariable("AccessToken");
+                RefreshToken = Environment.GetEnvironmentVariable("RefreshToken");
+                ClientId = Environment.GetEnvironmentVariable("ClientId");
+                ClientSecret = Environment.GetEnvironmentVariable("ClientSecret");
+            }
+            else
+            {
+                AccessToken = _configuration.GetValue<string>("GoogleDrive:AccessToken");
+                RefreshToken = _configuration.GetValue<string>("GoogleDrive:RefreshToken");
+                ClientId = _configuration.GetValue<string>("GoogleDrive:ClientId");
+                ClientSecret = _configuration.GetValue<string>("GoogleDrive:ClientSecret");
+            }
+            
         }
         public string IndexGetData()
         {
@@ -249,12 +261,11 @@ namespace CoreApiBoard.Services
         /// <returns></returns>
         private static DriveService GetService()
         {
+
             var tokenResponse = new TokenResponse
             {
-                AccessToken = Environment.GetEnvironmentVariable("AccessToken"),
-                RefreshToken = Environment.GetEnvironmentVariable("RefreshToken"),
-                //AccessToken = AccessToken,
-                //RefreshToken = RefreshToken,
+                AccessToken = AccessToken,
+                RefreshToken = RefreshToken,
             };
 
 
@@ -266,10 +277,8 @@ namespace CoreApiBoard.Services
             {
                 ClientSecrets = new ClientSecrets
                 {
-                    ClientId = Environment.GetEnvironmentVariable("ClientId"),
-                    ClientSecret = Environment.GetEnvironmentVariable("ClientSecret"),
-                    //ClientId = ClientId,
-                    //ClientSecret = ClientSecret,
+                    ClientId = ClientId,
+                    ClientSecret = ClientSecret,
                 },
                 Scopes = new[] { Scope.Drive },
                 DataStore = new FileDataStore(applicationName)

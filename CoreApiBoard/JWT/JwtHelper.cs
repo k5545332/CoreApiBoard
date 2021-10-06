@@ -25,9 +25,18 @@ namespace CoreApiBoard.JWT
         public string GetJwtToken(string Account)
         {
             var UserInfo = _userRepository.Get(Account);
-
-            string Secret = Environment.GetEnvironmentVariable("SignKey");
-            //string Secret = Configuration.GetValue<string>("JwtSettings:SignKey");
+            string Secret = "";
+            string Issuer = "";
+            if (Environment.GetEnvironmentVariable("PostgreOnlineConnectionString") != null)
+            {
+                Secret = Environment.GetEnvironmentVariable("SignKey");
+                Issuer = Environment.GetEnvironmentVariable("Issuer");
+            }
+            else
+            {
+                Secret = Configuration.GetValue<string>("JwtSettings:SignKey");
+                Issuer = Configuration.GetValue<string>("JwtSettings:Issuer");
+            }
 
             var userClaims = new ClaimsIdentity(new[] {
                 new Claim(JwtRegisteredClaimNames.Sub, Account),
@@ -42,9 +51,7 @@ namespace CoreApiBoard.JWT
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Issuer = Environment.GetEnvironmentVariable("Issuer"),
-                //Issuer = Configuration.GetValue<string>("JwtSettings:Issuer"),
-                Subject = userClaimsIdentity,
+                Issuer = Issuer,
                 Expires = DateTime.Now.AddMinutes(90),
                 SigningCredentials = signingCredentials
             };

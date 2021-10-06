@@ -57,9 +57,23 @@ namespace CoreApiBoard
             //Scaffold-DbContext "Host=localhost;Database=Board;Username=postgres;Password=1qaz@WSX" Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir PostgreSQLModels -Force
             //services.AddDbContext<BoardContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreConnectionString")));
 
+            var PostgreOnlineConnectionString = "";
+            var Issuer = "";
+            var SignKey = "";
 
-            services.AddDbContext<BoardContext>(options => options.UseNpgsql(Environment.GetEnvironmentVariable("PostgreOnlineConnectionString")));
-            //services.AddDbContext<BoardContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreOnlineConnectionString")));
+            if (Environment.GetEnvironmentVariable("PostgreOnlineConnectionString")!=null)
+            {
+                PostgreOnlineConnectionString = Environment.GetEnvironmentVariable("PostgreOnlineConnectionString");
+                Issuer = Environment.GetEnvironmentVariable("Issuer");
+                SignKey = Environment.GetEnvironmentVariable("SignKey");
+            }
+            else
+            {
+                PostgreOnlineConnectionString = Configuration.GetConnectionString("PostgreOnlineConnectionString");
+                Issuer = Configuration.GetValue<string>("JwtSettings:Issuer");
+                SignKey = Configuration.GetValue<string>("JwtSettings:SignKey");
+            }
+            services.AddDbContext<BoardContext>(options => options.UseNpgsql(PostgreOnlineConnectionString));
 
 
             services
@@ -71,14 +85,12 @@ namespace CoreApiBoard
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
-                    ValidIssuer = Environment.GetEnvironmentVariable("Issuer"),
-                    //ValidIssuer = Configuration.GetValue<string>("JwtSettings:Issuer"),
+                    ValidIssuer = Issuer,
                     ValidateAudience = false,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = false,
                     ClockSkew = TimeSpan.Zero,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SignKey")))
-                    //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetValue<string>("JwtSettings:SignKey")))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SignKey))
                 };
             });
 
